@@ -62,6 +62,10 @@ if options:
 
         st.info("This is the output of the machine learning model as tokens")
         model = load_model()
+        # Load the latest checkpoint
+        checkpoint_dir = "./path/to/checkpoints"  # Path where your unzipped checkpoint files are located
+        checkpoint = tf.train.Checkpoint(model=model)
+
         yhat = model.predict(tf.expand_dims(video, axis=0))
         decoder = tf.keras.backend.ctc_decode(yhat, [75], greedy=True)[0][0].numpy()
         st.text(decoder)
