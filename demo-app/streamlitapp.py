@@ -63,18 +63,18 @@ if options:
         st.info("This is the output of the machine learning model as tokens")
         model = load_model()
         # Load the latest checkpoint
-        # checkpoint_dir = os.path.join(
-        #     "..", "models - checkpoint 96"
-        # )  # Path where unzipped checkpoint files are located
-        # checkpoint = tf.train.Checkpoint(model=model)
-        # checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+        checkpoint_dir = os.path.join(
+            "..", "models - checkpoint 96"
+        )  # Path where unzipped checkpoint files are located
+        checkpoint = tf.train.Checkpoint(model=model)
+        checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 
-        # latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
-        # if latest_checkpoint:
-        #     checkpoint.restore(latest_checkpoint)
-        #     print("Checkpoint restored successfully!")
-        # else:
-        #     print("No checkpoint found.")
+        latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
+        if latest_checkpoint:
+            checkpoint.restore(latest_checkpoint)
+            print("Checkpoint restored successfully!")
+        else:
+            print("No checkpoint found.")
 
         # Now the model is ready for inference in your app
 
