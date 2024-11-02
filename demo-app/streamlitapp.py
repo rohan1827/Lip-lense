@@ -14,12 +14,12 @@ st.set_page_config(layout="wide")
 # Setup the sidebar
 with st.sidebar:
     st.image("https://www.onepointltd.com/wp-content/uploads/2020/03/inno2.png")
-    st.title("Lip Sense :) ")
+    st.title("Lip Net App :) ")
     st.info("Inspired by the LipNet Model!.")
 
 # st.title("LipNet App")
 st.markdown(
-    "<h1 style='text-align: center; color: vividblue;'>LipNet App!</h1>",
+    "<h1 style='text-align: center; color: vividblue;'>Lip Sense 🎥</h1>",
     unsafe_allow_html=True,
 )
 # Generating a list of options or videos
@@ -34,10 +34,9 @@ selected_video = st.selectbox("Choose video", options)
 col1, col2 = st.columns(2)
 
 if options:
-
     # Rendering the video
     with col1:
-        st.text("This is my col 1")
+        st.info("Rendering video", icon="🎬")
         file_path = os.path.join("..", "demo-data", "videos", "s1", selected_video)
 
         # Convert video to mp4 format ; Load the .mpg video
@@ -46,17 +45,20 @@ if options:
         output_path = os.path.join("..", "demo-data", "test video.mp4")
         clip.write_videofile(output_path, codec="libx264")
 
-        # # # Rendering inside of the app
-        # video = open("test_video.mp4", "rb")
-        # video_bytes = video.read()
-        # st.video(video_bytes)
+        # Rendering inside of the app
+        video = open(os.path.join("..", "demo-data", "test video.mp4"), "rb")
+        video_bytes = video.read()
+        st.video(video_bytes)
 
     with col2:
-        st.text("This is my col 2")
-        # st.info("This is all the machine learning model sees when making a prediction")
-        # video, annotations = load_data(tf.convert_to_tensor(file_path))
-        # imageio.mimsave("animation.gif", video, fps=10)
-        # st.image("animation.gif", width=400)
+        st.info(
+            "This is all the machine learning model sees",
+            icon="🤖",
+        )
+        print(file_path)
+        video, annotations = load_data(tf.convert_to_tensor(file_path))
+        imageio.mimsave("animation.gif", video, fps=10)
+        st.image("animation.gif", width=900)
 
         # st.info("This is the output of the machine learning model as tokens")
         # model = load_model()
