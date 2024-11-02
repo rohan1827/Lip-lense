@@ -14,6 +14,7 @@ from tensorflow.keras.layers import (
     TimeDistributed,
     Flatten,
 )
+from tensorflow.keras.initializers import Orthogonal
 
 
 def load_model() -> Sequential:
@@ -34,17 +35,17 @@ def load_model() -> Sequential:
     model.add(TimeDistributed(Flatten()))
 
     model.add(
-        Bidirectional(LSTM(128, kernel_initializer="Orthogonal", return_sequences=True))
+        Bidirectional(LSTM(128, kernel_initializer="orthogonal", return_sequences=True))
     )
     model.add(Dropout(0.5))
 
     model.add(
-        Bidirectional(LSTM(128, kernel_initializer="Orthogonal", return_sequences=True))
+        Bidirectional(LSTM(128, kernel_initializer="orthogonal", return_sequences=True))
     )
     model.add(Dropout(0.5))
 
     model.add(Dense(41, kernel_initializer="he_normal", activation="softmax"))
 
-    model.load_weights(os.path.join("..", "models", "checkpoint"))
+    # model.load_weights(os.path.join("..", "models", "checkpoint"))
 
     return model

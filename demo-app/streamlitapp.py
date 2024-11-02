@@ -63,16 +63,28 @@ if options:
         st.info("This is the output of the machine learning model as tokens")
         model = load_model()
         # Load the latest checkpoint
-        checkpoint_dir = "./path/to/checkpoints"  # Path where your unzipped checkpoint files are located
-        checkpoint = tf.train.Checkpoint(model=model)
+        # checkpoint_dir = os.path.join(
+        #     "..", "models - checkpoint 96"
+        # )  # Path where unzipped checkpoint files are located
+        # checkpoint = tf.train.Checkpoint(model=model)
+        # checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+
+        # latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
+        # if latest_checkpoint:
+        #     checkpoint.restore(latest_checkpoint)
+        #     print("Checkpoint restored successfully!")
+        # else:
+        #     print("No checkpoint found.")
+
+        # Now the model is ready for inference in your app
 
         yhat = model.predict(tf.expand_dims(video, axis=0))
         decoder = tf.keras.backend.ctc_decode(yhat, [75], greedy=True)[0][0].numpy()
         st.text(decoder)
 
-        # # Convert prediction to text
-        # st.info("Decode the raw tokens into words")
-        # converted_prediction = (
-        #     tf.strings.reduce_join(num_to_char(decoder)).numpy().decode("utf-8")
-        # )
-        # st.text(converted_prediction)
+        # Convert prediction to text
+        st.info("Decode the raw tokens into words")
+        converted_prediction = (
+            tf.strings.reduce_join(num_to_char(decoder)).numpy().decode("utf-8")
+        )
+        st.text(converted_prediction)
