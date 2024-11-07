@@ -4,7 +4,7 @@ import imageio
 from moviepy.editor import VideoFileClip
 
 import tensorflow as tf
-from utils import load_data, num_to_char
+from utils import load_data, num_to_char, load_video
 from modelutils import load_model
 
 # Set the layout to the streamlit app as wide
@@ -56,4 +56,33 @@ with col1:
 with col2:
     st.info("Testing on custom videos", icon="📹")
     st.text("Dummy, change this later")
-    # copy the same code from col 1 change the path.
+
+    custom_options = os.listdir(os.path.join("..", "custom_videos"))
+    selected_video = st.selectbox("Choose video", custom_options)
+
+    st.info("Rendering video", icon="🎬")
+    custom_file_path = os.path.join("..", "custom_videos", selected_video)
+
+    # Convert video to mp4 format and load the .mpg video
+    if not file_path.lower().endswith(".mp4"):
+        clip = VideoFileClip(custom_file_path)
+        output_path = os.path.join("..", "demo-data", "test_video.mp4")
+        clip.write_videofile(output_path, codec="libx264")
+
+    # Render video inside the app
+    with open(output_path, "rb") as video_file:
+        video_bytes = video_file.read()
+        st.video(video_bytes)
+
+    model = load_model()
+    # video = load_video(tf.convert_to_tensor(custom_file_path))
+    video = load_video(custom_file_path)
+    yhat = model.predict(tf.expand_dims(video, axis=0))
+    decoder = tf.keras.backend.ctc_decode(yhat, [75], greedy=True)[0][0].numpy()
+
+    # Convert prediction to text
+    st.info("Model says:")
+    converted_prediction = (
+        tf.strings.reduce_join(num_to_char(decoder)).numpy().decode("utf-8")
+    )
+    st.text(converted_prediction)
