@@ -4,7 +4,13 @@ import imageio
 from moviepy.editor import VideoFileClip
 
 import tensorflow as tf
-from utils import load_data, num_to_char, load_video
+from utils import (
+    load_data,
+    num_to_char,
+    preprocess_video,
+    load_video,
+    predict_from_video,
+)
 from modelutils import load_model
 
 # Set the layout to the streamlit app as wide
@@ -74,7 +80,9 @@ with col2:
         video_bytes = video_file.read()
         st.video(video_bytes)
 
+    # Model predictions
     model = load_model()
+
     # video = load_video(tf.convert_to_tensor(custom_file_path))
     video = load_video(custom_file_path)
     yhat = model.predict(tf.expand_dims(video, axis=0))
@@ -86,3 +94,12 @@ with col2:
         tf.strings.reduce_join(num_to_char(decoder)).numpy().decode("utf-8")
     )
     st.text(converted_prediction)
+
+# result = predict_from_video(
+#     video_path= custom_file_path,
+#     model=model,
+#     slice_size=75,  # your model's expected frame count
+#     overlap=25      # adjust based on your needs
+# )
+
+# print("Final prediction:", result)

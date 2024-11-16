@@ -37,7 +37,6 @@ def load_model() -> Sequential:
     model.add(MaxPool3D((1, 2, 2)))
 
     # Reshape before TimeDistributed
-    # Calculate the correct shape after Conv3D and MaxPool3D operations
     # Original: (75, 46, 140) -> After MaxPool3D operations: (75, 5, 17)
     model.add(
         Reshape((75, -1))
