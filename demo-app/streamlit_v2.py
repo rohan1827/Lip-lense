@@ -84,22 +84,22 @@ with col2:
     model = load_model()
 
     # video = load_video(tf.convert_to_tensor(custom_file_path))
-    video = load_video(custom_file_path)
-    yhat = model.predict(tf.expand_dims(video, axis=0))
-    decoder = tf.keras.backend.ctc_decode(yhat, [75], greedy=True)[0][0].numpy()
+    # video = load_video(custom_file_path)
+    # yhat = model.predict(tf.expand_dims(video, axis=0))
+    # decoder = tf.keras.backend.ctc_decode(yhat, [75], greedy=True)[0][0].numpy()
 
-    # Convert prediction to text
-    st.info("Model says:")
-    converted_prediction = (
-        tf.strings.reduce_join(num_to_char(decoder)).numpy().decode("utf-8")
-    )
-    st.text(converted_prediction)
+    # # Convert prediction to text
+    # st.info("Model says:")
+    # converted_prediction = (
+    #     tf.strings.reduce_join(num_to_char(decoder)).numpy().decode("utf-8")
+    # )
+    # st.text(converted_prediction)
 
-# result = predict_from_video(
-#     video_path= custom_file_path,
-#     model=model,
-#     slice_size=75,  # your model's expected frame count
-#     overlap=25      # adjust based on your needs
-# )
+result = predict_from_video(
+    video_path=custom_file_path,
+    model=model,
+    slice_size=75,  # your model's expected frame count
+    overlap=25,  # adjust based on your needs
+)
 
-# print("Final prediction:", result)
+print("Final prediction:", result)

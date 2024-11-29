@@ -184,15 +184,18 @@ def predict_from_video(
             print(f"Predicting frames {start_idx} to {min(end_idx, total_frames)}")
             pred = model.predict(batch, verbose=0)
 
-            # Decode prediction (modify this based on your model's output format)
-            # Example: if your model outputs character probabilities
-            decoded_pred = tf.keras.backend.ctc_decode(pred, [75], greedy=True)[0][
+            # Decode prediction
+            decoded_pred = tf.keras.backend.ctc_decode(pred, [slice_size], greedy=True)[
                 0
-            ].numpy()
-            # You'll need to implement this
-            predictions.append(decoded_pred)
+            ][0].numpy()
+            decoded_string = (
+                tf.strings.reduce_join(num_to_char(decoded_pred))
+                .numpy()
+                .decode("utf-8")
+            )
+            predictions.append(decoded_string)
 
-        # Combine predictions (modify based on your needs)
+        # Combine predictions
         final_prediction = " ".join(predictions)
 
         print("Prediction complete!")
