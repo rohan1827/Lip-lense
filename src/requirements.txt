@@ -1,0 +1,7 @@
+imageio==2.19.3
+moviepy==1.0.3
+opencv_python==4.9.0.80
+streamlit==1.40.0
+tensorflow==2.16.1
+tensorflow_intel==2.16.1
+# ~ensorflow_intel==2.15.0
