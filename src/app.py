@@ -25,6 +25,7 @@ def predict():
     try:
         # Check if a file was uploaded
         if 'video' not in request.files:
+            print("No video file uploaded")
             return jsonify({'error': 'No video file uploaded'}), 400
         
         video_file = request.files['video']
@@ -36,16 +37,32 @@ def predict():
         
         try:
             # Load video and preprocess
-            processed_video = preprocess_video(load_video(video_path))
+            print(f"Processing video: {video_path}")
+            processed_video = load_video(video_path)
+            
+            # Print shape of processed video for debugging
+            print(f"Processed video shape: {processed_video.shape}")
+            
+            # Expand dimensions for model prediction
+            input_video = tf.expand_dims(processed_video, axis=0)
             
             # Run inference using the global model
-            yhat = global_model.predict(tf.expand_dims(processed_video, axis=0))
+            print("Running model prediction")
+            yhat = global_model.predict(input_video)
+            
+            # Print prediction shape for debugging
+            print(f"Prediction shape: {yhat.shape}")
+            
+            # Decode the prediction
             decoder = tf.keras.backend.ctc_decode(yhat, [75], greedy=True)[0][0].numpy()
-
+            
             # Convert prediction to text
             converted_prediction = (
                 tf.strings.reduce_join(num_to_char(decoder)).numpy().decode("utf-8")
             )
+
+            # Debug print of the prediction
+            print(f"Converted Prediction: {converted_prediction}")
             
             # Return prediction
             return jsonify({
@@ -53,6 +70,7 @@ def predict():
             })
         
         except Exception as e:
+            print(f"Error during prediction: {str(e)}")
             return jsonify({'error': str(e)}), 500
         
         finally:
@@ -61,6 +79,7 @@ def predict():
                 os.remove(video_path)
     
     except Exception as e:
+        print(f"Internal server error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':

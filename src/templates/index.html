@@ -238,16 +238,13 @@
         const predictionResult = document.getElementById('predictionResult');
         const predictionText = document.getElementById('predictionText');
 
+        let uploadedFile = null;
+
         dropzone.addEventListener('click', () => fileInput.click());
 
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file && file.type.startsWith('video/')) {
-                predictButton.disabled = false;
-                dropzone.querySelector('.upload-text').textContent = file.name;
-            } else {
-                alert('Please upload a valid video file.');
-            }
+            handleFileSelection(file);
         });
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -270,31 +267,64 @@
         dropzone.addEventListener('drop', (e) => {
             const dt = e.dataTransfer;
             const files = dt.files;
-            fileInput.files = files;
-            handleFileSelect(files);
+            handleFileSelection(files[0]);
         });
 
-        function handleFileSelect(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.type.startsWith('video/')) {
-                    predictButton.disabled = false;
-                    dropzone.querySelector('.upload-text').textContent = file.name;
-                } else {
-                    alert('Please upload a valid video file.');
-                }
+        function handleFileSelection(file) {
+            if (file && file.type.startsWith('video/')) {
+                uploadedFile = file;
+                predictButton.disabled = false;
+                dropzone.querySelector('.upload-text').textContent = file.name;
+            } else {
+                alert('Please upload a valid video file.');
+                uploadedFile = null;
+                predictButton.disabled = true;
             }
         }
 
         predictButton.addEventListener('click', () => {
+            if (!uploadedFile) {
+                alert('Please upload a video first.');
+                return;
+            }
+
+            // Reset previous state
             loader.style.display = 'block';
             predictionResult.style.display = 'none';
+            predictButton.disabled = true;
 
-            setTimeout(() => {
+            // Create FormData to send the file
+            const formData = new FormData();
+            formData.append('video', uploadedFile);
+
+            // Send the file to the server
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
                 loader.style.display = 'none';
+                
+                if (data.error) {
+                    // Handle error
+                    predictionText.textContent = `Error: ${data.error}`;
+                    predictionResult.style.display = 'block';
+                } else {
+                    // Display prediction
+                    predictionText.textContent = data.prediction || 'No prediction available';
+                    predictionResult.style.display = 'block';
+                }
+                
+                predictButton.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loader.style.display = 'none';
+                predictionText.textContent = `Network Error: ${error.message}`;
                 predictionResult.style.display = 'block';
-                predictionText.textContent = "Predicted text from the video.";
-            }, 3000);
+                predictButton.disabled = false;
+            });
         });
     </script>
 </body>
