@@ -62,6 +62,6 @@ def load_model() -> Sequential:
         )
     )
 
-    model.load_weights(os.path.join("..", "model_3_4292", "checkpoint.weights.h5"))
+    model.load_weights(os.path.join("model_3_4292", "checkpoint.weights.h5"))
 
     return model

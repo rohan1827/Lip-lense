@@ -282,46 +282,49 @@
             }
         }
 
-        predictButton.addEventListener('click', async () => {
+        predictButton.addEventListener('click', () => {
             if (!uploadedFile) {
                 alert('Please upload a video first.');
                 return;
             }
-        
+
             // Reset previous state
             loader.style.display = 'block';
             predictionResult.style.display = 'none';
             predictButton.disabled = true;
-        
+
+            // Create FormData to send the file
             const formData = new FormData();
             formData.append('video', uploadedFile);
-        
-            try {
-                const response = await fetch('/predict', {
-                    method: 'POST',
-                    body: formData
-                });
-        
-                const data = await response.json();
-        
+
+            // Send the file to the server
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
                 loader.style.display = 'none';
-        
+                
                 if (data.error) {
+                    // Handle error
                     predictionText.textContent = `Error: ${data.error}`;
                     predictionResult.style.display = 'block';
                 } else {
+                    // Display prediction
                     predictionText.textContent = data.prediction || 'No prediction available';
                     predictionResult.style.display = 'block';
                 }
-        
+                
                 predictButton.disabled = false;
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error:', error);
                 loader.style.display = 'none';
                 predictionText.textContent = `Network Error: ${error.message}`;
                 predictionResult.style.display = 'block';
                 predictButton.disabled = false;
-            }
+            });
         });
     </script>
 </body>
