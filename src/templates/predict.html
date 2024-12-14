@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lipsense | AI Lip Reading</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A6CF7;
+            --secondary-color: #6B7AFF;
+            --background-color: #F4F7FF;
+            --text-color: #374151;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .app-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(74, 108, 247, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(74, 108, 247, 0.1);
+        }
+
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, 
+                rgba(74, 108, 247, 0.05) 0%, 
+                transparent 70%);
+            z-index: -1;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            margin-right: 15px;
+            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.2);
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .app-subtitle {
+            color: rgba(55, 65, 81, 0.7);
+            margin-bottom: 30px;
+        }
+
+        .dropzone {
+            border: 2px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: rgba(74, 108, 247, 0.02);
+            margin-bottom: 20px;
+        }
+
+        .dropzone:hover {
+            background-color: rgba(74, 108, 247, 0.05);
+            border-color: var(--secondary-color);
+        }
+
+        .dropzone input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .predict-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .predict-button:disabled {
+            background: #E0E7FF;
+            cursor: not-allowed;
+        }
+
+        .predict-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.2);
+        }
+
+        .prediction-result {
+            background-color: #F9FAFB;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 1px solid rgba(74, 108, 247, 0.1);
+        }
+
+        .model-note {
+            background-color: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            color: #1E40AF;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            color: #6B7280;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .loader {
+            border: 4px solid #F3F4F6;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .app-container {
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="logo-container">
+            <div class="logo">LS</div>
+            <div>
+                <div class="app-title">LIP SENSE</div>
+                <div class="app-subtitle">AI Lip Reading Technology</div>
+            </div>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+            <input type="file" id="fileInput" accept="video/*">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">Drag & Drop or Click to Upload Video</div>
+        </div>
+
+        <button class="predict-button" id="predictButton" disabled>Generate Prediction</button>
+
+        <div class="loader" id="loader"></div>
+
+        <div class="prediction-result" id="predictionResult" style="display:none;">
+            <strong>AI Prediction:</strong>
+            <p id="predictionText"></p>
+        </div>
+
+        <div class="model-note">
+            <strong>Model Development Notice</strong>
+            <p>Our AI is continuously learning. Predictions may vary based on video quality, speaker position, dimensions of the video and environmental factors. We're committed to improving performance with each iteration. Stay tuned for a better version 😸</p>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        Developed by Group#1 with ❤️
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const predictButton = document.getElementById('predictButton');
+        const loader = document.getElementById('loader');
+        const predictionResult = document.getElementById('predictionResult');
+        const predictionText = document.getElementById('predictionText');
+
+        let uploadedFile = null;
+
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFileSelection(file);
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.style.borderColor = 'var(--secondary-color)', false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.style.borderColor = 'var(--primary-color)', false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFileSelection(files[0]);
+        });
+
+        function handleFileSelection(file) {
+            if (file && file.type.startsWith('video/')) {
+                uploadedFile = file;
+                predictButton.disabled = false;
+                dropzone.querySelector('.upload-text').textContent = file.name;
+            } else {
+                alert('Please upload a valid video file.');
+                uploadedFile = null;
+                predictButton.disabled = true;
+            }
+        }
+
+        predictButton.addEventListener('click', () => {
+            if (!uploadedFile) {
+                alert('Please upload a video first.');
+                return;
+            }
+
+            // Reset previous state
+            loader.style.display = 'block';
+            predictionResult.style.display = 'none';
+            predictButton.disabled = true;
+
+            // Create FormData to send the file
+            const formData = new FormData();
+            formData.append('video', uploadedFile);
+
+            // Send the file to the server
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loader.style.display = 'none';
+                
+                if (data.error) {
+                    // Handle error
+                    predictionText.textContent = `Error: ${data.error}`;
+                    predictionResult.style.display = 'block';
+                } else {
+                    // Display prediction
+                    predictionText.textContent = data.prediction || 'No prediction available';
+                    predictionResult.style.display = 'block';
+                }
+                
+                predictButton.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loader.style.display = 'none';
+                predictionText.textContent = `Network Error: ${error.message}`;
+                predictionResult.style.display = 'block';
+                predictButton.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

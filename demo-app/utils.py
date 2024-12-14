@@ -124,83 +124,83 @@ def predict_from_video(
         List of predictions for the video
     """
 
-    def load_video(video_path: str) -> np.ndarray:
-        """Internal function to load and preprocess video."""
-        cap = cv2.VideoCapture(video_path)
-        frames = []
+    # def load_video(video_path: str) -> np.ndarray:
+    #     """Internal function to load and preprocess video."""
+    #     cap = cv2.VideoCapture(video_path)
+    #     frames = []
 
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
+    #     while True:
+    #         ret, frame = cap.read()
+    #         if not ret:
+    #             break
 
-            # Convert to grayscale
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #         # Convert to grayscale
+    #         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            # Resize
-            resized = cv2.resize(gray, (target_width, target_height))
+    #         # Resize
+    #         resized = cv2.resize(gray, (target_width, target_height))
 
-            # Normalize pixels to [0,1]
-            normalized = resized.astype(np.float32) / 255.0
+    #         # Normalize pixels to [0,1]
+    #         normalized = resized.astype(np.float32) / 255.0
 
-            # Add channel dimension
-            normalized = normalized.reshape(target_height, target_width, 1)
+    #         # Add channel dimension
+    #         normalized = normalized.reshape(target_height, target_width, 1)
 
-            frames.append(normalized)
+    #         frames.append(normalized)
 
-        cap.release()
-        return np.array(frames)
+    #     cap.release()
+    #     return np.array(frames)
 
-    try:
-        # Load and preprocess video
-        print(f"Loading video: {video_path}")
-        video_frames = load_video(video_path)
-        total_frames = len(video_frames)
+    # try:
+    #     # Load and preprocess video
+    #     print(f"Loading video: {video_path}")
+    #     video_frames = load_video(video_path)
+    #     total_frames = len(video_frames)
 
-        if total_frames == 0:
-            raise ValueError("No frames were loaded from the video")
+    #     if total_frames == 0:
+    #         raise ValueError("No frames were loaded from the video")
 
-        print(f"Loaded {total_frames} frames")
+    #     print(f"Loaded {total_frames} frames")
 
-        # Process video in overlapping slices
-        predictions = []
-        stride = slice_size - overlap
+    #     # Process video in overlapping slices
+    #     predictions = []
+    #     stride = slice_size - overlap
 
-        for start_idx in range(0, total_frames, stride):
-            # Extract slice
-            end_idx = start_idx + slice_size
-            current_slice = video_frames[start_idx : min(end_idx, total_frames)]
+    #     for start_idx in range(0, total_frames, stride):
+    #         # Extract slice
+    #         end_idx = start_idx + slice_size
+    #         current_slice = video_frames[start_idx : min(end_idx, total_frames)]
 
-            # Pad if necessary
-            if len(current_slice) < slice_size:
-                padding_needed = slice_size - len(current_slice)
-                padding_frames = np.repeat(current_slice[0:1], padding_needed, axis=0)
-                current_slice = np.concatenate([current_slice, padding_frames])
+    #         # Pad if necessary
+    #         if len(current_slice) < slice_size:
+    #             padding_needed = slice_size - len(current_slice)
+    #             padding_frames = np.repeat(current_slice[0:1], padding_needed, axis=0)
+    #             current_slice = np.concatenate([current_slice, padding_frames])
 
-            # Prepare batch for model
-            batch = current_slice.reshape(1, slice_size, target_height, target_width, 1)
+    #         # Prepare batch for model
+    #         batch = current_slice.reshape(1, slice_size, target_height, target_width, 1)
 
-            # Make prediction
-            print(f"Predicting frames {start_idx} to {min(end_idx, total_frames)}")
-            pred = model.predict(batch, verbose=0)
+    #         # Make prediction
+    #         print(f"Predicting frames {start_idx} to {min(end_idx, total_frames)}")
+    #         pred = model.predict(batch, verbose=0)
 
-            # Decode prediction
-            decoded_pred = tf.keras.backend.ctc_decode(pred, [slice_size], greedy=True)[
-                0
-            ][0].numpy()
-            decoded_string = (
-                tf.strings.reduce_join(num_to_char(decoded_pred))
-                .numpy()
-                .decode("utf-8")
-            )
-            predictions.append(decoded_string)
+    #         # Decode prediction
+    #         decoded_pred = tf.keras.backend.ctc_decode(pred, [slice_size], greedy=True)[
+    #             0
+    #         ][0].numpy()
+    #         decoded_string = (
+    #             tf.strings.reduce_join(num_to_char(decoded_pred))
+    #             .numpy()
+    #             .decode("utf-8")
+    #         )
+    #         predictions.append(decoded_string)
 
-        # Combine predictions
-        final_prediction = " ".join(predictions)
+    #     # Combine predictions
+    #     final_prediction = " ".join(predictions)
 
-        print("Prediction complete!")
-        return final_prediction
+    #     print("Prediction complete!")
+    #     return final_prediction
 
-    except Exception as e:
-        print(f"Error processing video: {str(e)}")
-        return None
+    # except Exception as e:
+    #     print(f"Error processing video: {str(e)}")
+    #     return None

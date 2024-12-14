@@ -1,0 +1,6 @@
+lipenv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+uploads/
